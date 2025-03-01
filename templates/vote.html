@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Vote on Impact Weights{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <h1 class="text-3xl font-bold mb-8">Vote on Category Weights</h1>
+    
+    <div class="bg-white shadow-lg rounded-lg p-6">
+        <p class="mb-4 text-gray-600">
+            Adjust the importance of each category in the overall impact score. 
+            The weights will be normalized to sum to 100%.
+        </p>
+
+        <form id="voteForm" class="space-y-6">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Social Impact (Worker treatment, tax practices)</label>
+                    <input type="range" name="social" min="0" max="100" value="30" 
+                           class="mt-1 w-full" oninput="this.nextElementSibling.value = this.value + '%'">
+                    <output class="text-sm text-gray-500">30%</output>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Environmental Responsibility</label>
+                    <input type="range" name="environmental" min="0" max="100" value="20"
+                           class="mt-1 w-full" oninput="this.nextElementSibling.value = this.value + '%'">
+                    <output class="text-sm text-gray-500">20%</output>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Political Influence</label>
+                    <input type="range" name="political" min="0" max="100" value="20"
+                           class="mt-1 w-full" oninput="this.nextElementSibling.value = this.value + '%'">
+                    <output class="text-sm text-gray-500">20%</output>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Philanthropy</label>
+                    <input type="range" name="philanthropy" min="0" max="100" value="20"
+                           class="mt-1 w-full" oninput="this.nextElementSibling.value = this.value + '%'">
+                    <output class="text-sm text-gray-500">20%</output>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Cultural Impact</label>
+                    <input type="range" name="cultural" min="0" max="100" value="10"
+                           class="mt-1 w-full" oninput="this.nextElementSibling.value = this.value + '%'">
+                    <output class="text-sm text-gray-500">10%</output>
+                </div>
+            </div>
+
+            <div class="flex justify-end">
+                <button type="submit" class="py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-lg">
+                    Submit Vote
+                </button>
+            </div>
+        </form>
+
+        <div id="message" class="mt-4 hidden"></div>
+    </div>
+
+    <script>
+        document.getElementById('voteForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const total = Array.from(formData.values()).reduce((sum, val) => sum + Number(val), 0);
+            
+            for (const [category, weight] of formData.entries()) {
+                try {
+                    const response = await fetch('/vote', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `category=${category}&weight=${Number(weight) / total}`
+                    });
+                    
+                    if (!response.ok) throw new Error('Vote failed');
+                } catch (error) {
+                    console.error('Error submitting vote:', error);
+                    showMessage('Error submitting vote. Please try again.', 'error');
+                    return;
+                }
+            }
+            
+            showMessage('Votes submitted successfully!', 'success');
+        });
+
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = `mt-4 p-4 rounded-lg ${type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`;
+            messageDiv.classList.remove('hidden');
+        }
+    </script>
+</div>
+{% endblock %}

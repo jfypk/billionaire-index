@@ -1,5 +1,8 @@
-from fastapi import FastAPI, Depends, HTTPException, status, BackgroundTasks
+from fastapi import FastAPI, Depends, HTTPException, status, BackgroundTasks, Request
+from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from typing import List
 import uuid
 import logging
@@ -24,25 +27,42 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize database
+# Initialize templates
+templates = Jinja2Templates(directory="templates")
+
+# Initialize database and scraper manager
 db = Database()
 scraper_manager = ScraperManager()
 
-@app.get("/")
-async def root():
-    """API root endpoint with information about available endpoints"""
-    return {
-        "title": "Billionaire Ranking System API",
-        "version": "1.0.0",
-        "endpoints": {
-            "GET /rankings": "Get ranked list of billionaires",
-            "GET /billionaire/{id}": "Get individual billionaire data",
-            "POST /vote": "Submit weight adjustments for scoring categories",
-            "POST /report": "Submit evidence about a billionaire",
-            "POST /update-data/{billionaire_id}": "Trigger data update for a specific billionaire",
-            "POST /update-all-data": "Trigger data update for all billionaires"
-        }
-    }
+@app.get("/", response_class=HTMLResponse)
+async def root(request: Request):
+    """Render the main rankings page"""
+    try:
+        billionaires = db.get_billionaires()
+        weights = calculate_weights(db)
+        db.update_billionaire_scores(weights)
+        return templates.TemplateResponse(
+            "rankings.html",
+            {"request": request, "billionaires": sorted(billionaires, key=lambda x: x.overall_score, reverse=True)}
+        )
+    except Exception as e:
+        logger.error(f"Error rendering rankings page: {str(e)}")
+        return templates.TemplateResponse(
+            "rankings.html",
+            {"request": request, "billionaires": [], "error": "Failed to load rankings"}
+        )
+
+@app.get("/vote", response_class=HTMLResponse)
+async def vote_page(request: Request):
+    """Render the voting page"""
+    try:
+        return templates.TemplateResponse("vote.html", {"request": request})
+    except Exception as e:
+        logger.error(f"Error rendering vote page: {str(e)}")
+        return templates.TemplateResponse(
+            "vote.html",
+            {"request": request, "error": "Failed to load voting page"}
+        )
 
 @app.get("/rankings", response_model=List[Billionaire])
 async def get_rankings():
@@ -149,4 +169,4 @@ async def update_all_data(
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000) # Changed port to 8000 for better practice
+    uvicorn.run(app, host="0.0.0.0", port=5000)
