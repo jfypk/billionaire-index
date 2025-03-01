@@ -15,6 +15,19 @@ class Billionaire(BaseModel):
 
     @validator('overall_score', pre=True, always=True)
     def calculate_overall_score(cls, v, values):
+        """
+        Calculate overall score with weights based on:
+        - Social impact (30%): Worker treatment, tax practices, governance
+        - Environmental responsibility (20%): Climate action, sustainability
+        - Political influence (20%): Campaign contributions, lobbying transparency
+        - Philanthropy (20%): Charitable giving, social impact
+        - Cultural impact (10%): Public influence, media representation
+
+        Each category emphasizes positive behaviors:
+        - High scores (>15): Exceptional positive impact
+        - Medium scores (8-15): Neutral to moderate positive impact
+        - Low scores (<8): Negative impact, needs improvement
+        """
         weights = {
             'social': 0.3,
             'environmental': 0.2,
@@ -22,7 +35,7 @@ class Billionaire(BaseModel):
             'philanthropy': 0.2,
             'cultural': 0.1
         }
-        
+
         return (
             values.get('social_score', 0) * weights['social'] +
             values.get('environmental_score', 0) * weights['environmental'] +
