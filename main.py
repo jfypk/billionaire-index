@@ -2,11 +2,16 @@ from fastapi import FastAPI, Depends, HTTPException, status, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 import uuid
+import logging
 from models import Billionaire, Vote, Report, User
 from database import Database
 from auth import get_current_active_user
 from utils import calculate_weights
 from scrapers.scraper_manager import ScraperManager
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Billionaire Ranking System")
 
@@ -120,13 +125,17 @@ async def update_billionaire_data(
     current_user: User = Depends(get_current_active_user)
 ):
     """Trigger data update for a specific billionaire"""
+    logger.info(f"Received update request for billionaire {billionaire_id} from user {current_user.username}")
+
     if not db.get_billionaire(billionaire_id):
+        logger.error(f"Billionaire {billionaire_id} not found")
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Billionaire not found"
         )
 
     background_tasks.add_task(scraper_manager.update_billionaire_data, billionaire_id)
+    logger.info(f"Started background update task for billionaire {billionaire_id}")
     return {"message": "Data update started"}
 
 @app.post("/update-all-data")
@@ -140,4 +149,4 @@ async def update_all_data(
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=5000)
+    uvicorn.run(app, host="0.0.0.0", port=8000) # Changed port to 8000 for better practice
