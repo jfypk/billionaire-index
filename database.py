@@ -1,53 +1,70 @@
-import json
-import os
+from sqlalchemy.orm import Session
 from typing import List, Optional
 from models import Billionaire, Vote, Report
+from database_models import BillionaireModel, VoteModel, ReportModel
+from db_config import get_db
+from datetime import datetime
 
 class Database:
     def __init__(self):
-        self.billionaires_file = "data/billionaires.json"
-        self.votes_file = "data/votes.json"
-        self.reports_file = "data/reports.json"
-        self._ensure_data_files()
-
-    def _ensure_data_files(self):
-        os.makedirs("data", exist_ok=True)
-        for file_path in [self.billionaires_file, self.votes_file, self.reports_file]:
-            if not os.path.exists(file_path):
-                with open(file_path, 'w') as f:
-                    json.dump([], f)
-
-    def _read_json(self, file_path: str) -> List[dict]:
-        with open(file_path, 'r') as f:
-            return json.load(f)
-
-    def _write_json(self, file_path: str, data: List[dict]):
-        with open(file_path, 'w') as f:
-            json.dump(data, f, default=str)
+        self.db: Session = next(get_db())
 
     def get_billionaires(self) -> List[Billionaire]:
-        data = self._read_json(self.billionaires_file)
-        return [Billionaire(**b) for b in data]
+        billionaires = self.db.query(BillionaireModel).all()
+        return [
+            Billionaire(
+                id=b.id,
+                name=b.name,
+                net_worth=b.net_worth,
+                social_score=b.social_score,
+                environmental_score=b.environmental_score,
+                political_score=b.political_score,
+                philanthropy_score=b.philanthropy_score,
+                cultural_score=b.cultural_score,
+                overall_score=b.overall_score
+            ) for b in billionaires
+        ]
 
     def get_billionaire(self, billionaire_id: str) -> Optional[Billionaire]:
-        billionaires = self.get_billionaires()
-        for b in billionaires:
-            if b.id == billionaire_id:
-                return b
-        return None
+        billionaire = self.db.query(BillionaireModel).filter(BillionaireModel.id == billionaire_id).first()
+        if not billionaire:
+            return None
+        return Billionaire(
+            id=billionaire.id,
+            name=billionaire.name,
+            net_worth=billionaire.net_worth,
+            social_score=billionaire.social_score,
+            environmental_score=billionaire.environmental_score,
+            political_score=billionaire.political_score,
+            philanthropy_score=billionaire.philanthropy_score,
+            cultural_score=billionaire.cultural_score,
+            overall_score=billionaire.overall_score
+        )
 
     def save_vote(self, vote: Vote):
-        votes = self._read_json(self.votes_file)
-        votes.append(vote.dict())
-        self._write_json(self.votes_file, votes)
+        vote_model = VoteModel(
+            user_id=vote.user_id,
+            category=vote.category,
+            weight=vote.weight,
+            timestamp=vote.timestamp
+        )
+        self.db.add(vote_model)
+        self.db.commit()
 
     def save_report(self, report: Report):
-        reports = self._read_json(self.reports_file)
-        reports.append(report.dict())
-        self._write_json(self.reports_file, reports)
+        report_model = ReportModel(
+            user_id=report.user_id,
+            billionaire_id=report.billionaire_id,
+            evidence=report.evidence,
+            category=report.category,
+            timestamp=report.timestamp,
+            status=report.status
+        )
+        self.db.add(report_model)
+        self.db.commit()
 
     def update_billionaire_scores(self, weights: dict):
-        billionaires = self.get_billionaires()
+        billionaires = self.db.query(BillionaireModel).all()
         for b in billionaires:
             b.overall_score = (
                 b.social_score * weights['social'] +
@@ -56,4 +73,13 @@ class Database:
                 b.philanthropy_score * weights['philanthropy'] +
                 b.cultural_score * weights['cultural']
             )
-        self._write_json(self.billionaires_file, [b.dict() for b in billionaires])
+        self.db.commit()
+
+    def get_votes(self) -> List[dict]:
+        votes = self.db.query(VoteModel).all()
+        return [
+            {
+                'category': v.category,
+                'weight': v.weight
+            } for v in votes
+        ]
