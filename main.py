@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 import uuid
@@ -6,6 +6,7 @@ from models import Billionaire, Vote, Report, User
 from database import Database
 from auth import get_current_active_user
 from utils import calculate_weights
+from scrapers.scraper_manager import ScraperManager
 
 app = FastAPI(title="Billionaire Ranking System")
 
@@ -20,6 +21,7 @@ app.add_middleware(
 
 # Initialize database
 db = Database()
+scraper_manager = ScraperManager()
 
 @app.get("/")
 async def root():
@@ -31,7 +33,9 @@ async def root():
             "GET /rankings": "Get ranked list of billionaires",
             "GET /billionaire/{id}": "Get individual billionaire data",
             "POST /vote": "Submit weight adjustments for scoring categories",
-            "POST /report": "Submit evidence about a billionaire"
+            "POST /report": "Submit evidence about a billionaire",
+            "POST /update-data/{billionaire_id}": "Trigger data update for a specific billionaire",
+            "POST /update-all-data": "Trigger data update for all billionaires"
         }
     }
 
@@ -108,6 +112,31 @@ async def submit_report(
 
     db.save_report(report)
     return {"message": "Report submitted successfully"}
+
+@app.post("/update-data/{billionaire_id}")
+async def update_billionaire_data(
+    billionaire_id: str,
+    background_tasks: BackgroundTasks,
+    current_user: User = Depends(get_current_active_user)
+):
+    """Trigger data update for a specific billionaire"""
+    if not db.get_billionaire(billionaire_id):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Billionaire not found"
+        )
+
+    background_tasks.add_task(scraper_manager.update_billionaire_data, billionaire_id)
+    return {"message": "Data update started"}
+
+@app.post("/update-all-data")
+async def update_all_data(
+    background_tasks: BackgroundTasks,
+    current_user: User = Depends(get_current_active_user)
+):
+    """Trigger data update for all billionaires"""
+    background_tasks.add_task(scraper_manager.update_all_billionaires)
+    return {"message": "Full data update started"}
 
 if __name__ == "__main__":
     import uvicorn
