@@ -1,0 +1,404 @@
+{
+  "billionaires": [
+    {
+      "rank": 1,
+      "name": "Elon Musk",
+      "netWorth": "$359 billion",
+      "age": 54,
+      "country": "USA",
+      "companies": ["Tesla", "SpaceX"]
+    },
+    {
+      "rank": 2,
+      "name": "Mark Zuckerberg",
+      "netWorth": "$231 billion",
+      "age": 42,
+      "country": "USA",
+      "companies": ["Facebook"]
+    },
+    {
+      "rank": 3,
+      "name": "Jeff Bezos",
+      "netWorth": "$227 billion",
+      "age": 62,
+      "country": "USA",
+      "companies": ["Amazon"]
+    },
+    {
+      "rank": 4,
+      "name": "Larry Ellison",
+      "netWorth": "$205 billion",
+      "age": 82,
+      "country": "USA",
+      "companies": ["Oracle"]
+    },
+    {
+      "rank": 5,
+      "name": "Bernard Arnault",
+      "netWorth": "$186 billion",
+      "age": 75,
+      "country": "France",
+      "companies": ["LVMH"]
+    },
+    {
+      "rank": 6,
+      "name": "Warren Buffett",
+      "netWorth": "$161 billion",
+      "age": 94,
+      "country": "USA",
+      "companies": ["Berkshire Hathaway"]
+    },
+    {
+      "rank": 7,
+      "name": "Larry Page",
+      "netWorth": "$142 billion",
+      "age": 51,
+      "country": "USA",
+      "companies": ["Google"]
+    },
+    {
+      "rank": 8,
+      "name": "Sergey Brin",
+      "netWorth": "$135 billion",
+      "age": 51,
+      "country": "USA",
+      "companies": ["Google"]
+    },
+    {
+      "rank": 9,
+      "name": "Amancio Ortega",
+      "netWorth": "$122 billion",
+      "age": 88,
+      "country": "Spain",
+      "companies": ["Zara"]
+    },
+    {
+      "rank": 10,
+      "name": "Steve Ballmer",
+      "netWorth": "$119 billion",
+      "age": 68,
+      "country": "USA",
+      "companies": ["Microsoft"]
+    },
+    {
+      "rank": 11,
+      "name": "Rob Walton",
+      "netWorth": "$117 billion",
+      "age": 80,
+      "country": "USA",
+      "companies": ["Walmart"]
+    },
+    {
+      "rank": 12,
+      "name": "Jim Walton",
+      "netWorth": "$115 billion",
+      "age": 76,
+      "country": "USA",
+      "companies": ["Walmart"]
+    },
+    {
+      "rank": 13,
+      "name": "Jensen Huang",
+      "netWorth": "$109 billion",
+      "age": 62,
+      "country": "USA",
+      "companies": ["Nvidia"]
+    },
+    {
+      "rank": 14,
+      "name": "Bill Gates",
+      "netWorth": "$109 billion",
+      "age": 69,
+      "country": "USA",
+      "companies": ["Microsoft"]
+    },
+    {
+      "rank": 15,
+      "name": "Alice Walton",
+      "netWorth": "$108 billion",
+      "age": 75,
+      "country": "USA",
+      "companies": ["Walmart"]
+    },
+    {
+      "rank": 16,
+      "name": "Michael Bloomberg",
+      "netWorth": "$105 billion",
+      "age": 82,
+      "country": "USA",
+      "companies": ["Bloomberg LP"]
+    },
+    {
+      "rank": 17,
+      "name": "Francoise Bettencourt Meyers",
+      "netWorth": "$102 billion",
+      "age": 71,
+      "country": "France",
+      "companies": ["L'Oréal"]
+    },
+    {
+      "rank": 18,
+      "name": "Gautam Adani",
+      "netWorth": "$101 billion",
+      "age": 62,
+      "country": "India",
+      "companies": ["Adani Group"]
+    },
+    {
+      "rank": 19,
+      "name": "Carlos Slim Helu",
+      "netWorth": "$101 billion",
+      "age": 85,
+      "country": "Mexico",
+      "companies": ["América Móvil"]
+    },
+    {
+      "rank": 20,
+      "name": "Zhong Shanshan",
+      "netWorth": "$95 billion",
+      "age": 69,
+      "country": "China",
+      "companies": ["Nongfu Spring"]
+    },
+    {
+      "rank": 21,
+      "name": "Julia Flesher Koch",
+      "netWorth": "$93 billion",
+      "age": 61,
+      "country": "USA",
+      "companies": ["Koch Industries"]
+    },
+    {
+      "rank": 22,
+      "name": "Charles Koch",
+      "netWorth": "$93 billion",
+      "age": 88,
+      "country": "USA",
+      "companies": ["Koch Industries"]
+    },
+    {
+      "rank": 23,
+      "name": "Ma Huateng",
+      "netWorth": "$91 billion",
+      "age": 52,
+      "country": "China",
+      "companies": ["Tencent"]
+    },
+    {
+      "rank": 24,
+      "name": "MacKenzie Scott",
+      "netWorth": "$88 billion",
+      "age": 55,
+      "country": "USA",
+      "companies": ["Amazon"]
+    },
+    {
+      "rank": 25,
+      "name": "Michael Dell",
+      "netWorth": "$87 billion",
+      "age": 60,
+      "country": "USA",
+      "companies": ["Dell Technologies"]
+    },
+    {
+      "rank": 26,
+      "name": "Colin Huang",
+      "netWorth": "$85 billion",
+      "age": 43,
+      "country": "China",
+      "companies": ["Pinduoduo"]
+    },
+    {
+      "rank": 27,
+      "name": "Zhang Yiming",
+      "netWorth": "$83 billion",
+      "age": 41,
+      "country": "China",
+      "companies": ["ByteDance"]
+    },
+    {
+      "rank": 28,
+      "name": "David Thomson",
+      "netWorth": "$82 billion",
+      "age": 67,
+      "country": "Canada",
+      "companies": ["Thomson Reuters"]
+    },
+    {
+      "rank": 29,
+      "name": "Phil Knight",
+      "netWorth": "$81 billion",
+      "age": 86,
+      "country": "USA",
+      "companies": ["Nike"]
+    },
+    {
+      "rank": 30,
+      "name": "François Pinault",
+      "netWorth": "$80 billion",
+      "age": 88,
+      "country": "France",
+      "companies": ["Kering"]
+    },
+    {
+      "rank": 31,
+      "name": "Giovanni Ferrero",
+      "netWorth": "$79 billion",
+      "age": 60,
+      "country": "Italy",
+      "companies": ["Ferrero Group"]
+    },
+    {
+      "rank": 32,
+      "name": "Dieter Schwarz",
+      "netWorth": "$78 billion",
+      "age": 85,
+      "country": "Germany",
+      "companies": ["Lidl", "Kaufland"]
+    },
+    {
+      "rank": 33,
+      "name": "Tadashi Yanai",
+      "netWorth": "$77 billion",
+      "age": 74,
+      "country": "Japan",
+      "companies": ["Fast Retailing"]
+    },
+    {
+      "rank": 34,
+      "name": "Susanne Klatten",
+      "netWorth": "$76 billion",
+      "age": 63,
+      "country": "Germany",
+      "companies": ["BMW", "Altana"]
+    },
+    {
+      "rank": 35,
+      "name": "Stefan Quandt",
+      "netWorth": "$75 billion",
+      "age": 61,
+      "country": "Germany",
+      "companies": ["BMW"]
+    },
+    {
+      "rank": 36,
+      "name": "Miriam Adelson",
+      "netWorth": "$74 billion",
+      "age": 77,
+      "country": "USA",
+      "companies": ["Las Vegas Sands"]
+    },
+    {
+      "rank": 37,
+      "name": "Ken Griffin",
+      "netWorth": "$73 billion",
+      "age": 56,
+      "country": "USA",
+      "companies": ["Citadel"]
+    },
+    {
+      "rank": 38,
+      "name": "Vladimir Potanin",
+      "netWorth": "$72 billion",
+      "age": 64,
+      "country": "Russia",
+      "companies": ["Norilsk Nickel"]
+    },
+    {
+      "rank": 39,
+      "name": "Vladimir Lisin",
+      "netWorth": "$71 billion",
+      "age": 68,
+      "country": "Russia",
+      "companies": ["Novolipetsk Steel"]
+    },
+    {
+      "rank": 40,
+      "name": "Alexey Mordashov",
+      "netWorth": "$70 billion",
+      "age": 59,
+      "country": "Russia",
+      "companies": ["Severstal"]
+    },
+    {
+      "rank": 41,
+      "name": "Aliko Dangote",
+      "netWorth": "$69 billion",
+      "age": 67,
+      "country": "Nigeria",
+      "companies": ["Dangote Group"]
+    },
+    {
+      "rank": 42,
+      "name": "Giovanni Ferrero",
+      "netWorth": "$68 billion",
+      "age": 60,
+      "country": "Italy",
+      "companies": ["Ferrero Group"]
+    },
+    {
+      "rank": 43,
+      "name": "Li Ka-shing",
+      "netWorth": "$67 billion",
+      "age": 96,
+      "country": "Hong Kong",
+      "companies": ["CK Hutchison Holdings"]
+    },
+    {
+      "rank": 44,
+      "name": "Pallonji Mistry",
+      "netWorth": "$66 billion",
+      "age": 96,
+      "country": "India",
+      "companies": ["Shapoorji Pallonji Group"]
+    },
+    {
+      "rank": 45,
+      "name": "Shiv Nadar",
+      "netWorth": "$65 billion",
+      "age": 79,
+      "country": "India",
+      "companies": ["HCL Technologies"]
+    },
+    {
+      "rank": 46,
+      "name": "Iris Fontbona",
+      "netWorth": "$64 billion",
+      "age": 82,
+      "country": "Chile",
+      "companies": ["Antofagasta"]
+    },
+    {
+      "rank": 47,
+      "name": "Gina Rinehart",
+      "netWorth": "$63 billion",
+      "age": 71,
+      "country": "Australia",
+      "companies": ["Hancock Prospecting"]
+    },
+    {
+      "rank": 48,
+      "name": "Masayoshi Son",
+      "netWorth": "$62 billion",
+      "age": 67,
+      "country": "Japan",
+      "companies": ["SoftBank"]
+    },
+    {
+      "rank": 49,
+      "name": "Lakshmi Mittal",
+      "netWorth": "$61 billion",
+      "age": 74,
+      "country": "India",
+      "companies": ["ArcelorMittal"]
+    },
+    {
+      "rank": 50,
+      "name": "Lee Shau Kee",
+      "netWorth": "$60 billion",
+      "age": 97,
+      "country": "Hong Kong",
+      "companies": ["Henderson Land Development"]
+    }
+  ]
+}
