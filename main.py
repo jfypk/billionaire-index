@@ -1,10 +1,11 @@
 from fastapi import FastAPI, Depends, HTTPException, status, BackgroundTasks, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from typing import List
-import uuid
+import os
+import sys
 import logging
 from models import Billionaire, Vote, Report, User
 from database import Database
@@ -27,20 +28,39 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Mount static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
 # Initialize templates
 templates = Jinja2Templates(directory="templates")
 
 # Initialize database and scraper manager
-db = Database()
-scraper_manager = ScraperManager()
+try:
+    logger.info("Initializing database connection...")
+    db = Database()
+    logger.info("Database connection successful")
+    scraper_manager = ScraperManager()
+    logger.info("Scraper manager initialized")
+except Exception as e:
+    logger.error(f"Failed to initialize services: {e}")
+    raise
+
+@app.get("/health")
+async def health_check():
+    """Simple health check endpoint"""
+    return {"status": "healthy"}
 
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
     """Render the main rankings page"""
     try:
+        logger.info("Fetching billionaires from database")
         billionaires = db.get_billionaires()
+        logger.info(f"Retrieved {len(billionaires)} billionaire records")
+
         weights = calculate_weights(db)
         db.update_billionaire_scores(weights)
+
         return templates.TemplateResponse(
             "rankings.html",
             {"request": request, "billionaires": sorted(billionaires, key=lambda x: x.overall_score, reverse=True)}
