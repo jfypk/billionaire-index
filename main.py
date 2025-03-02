@@ -3,15 +3,17 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from fastapi.security import OAuth2PasswordRequestForm
 from typing import List
 import os
 import sys
 import logging
 from models import Billionaire, Vote, Report, User
 from database import Database
-from auth import get_current_active_user
+from auth import get_current_active_user, create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
 from utils import calculate_weights
 from scrapers.scraper_manager import ScraperManager
+from datetime import timedelta
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -83,6 +85,22 @@ async def vote_page(request: Request):
             "vote.html",
             {"request": request, "error": "Failed to load voting page"}
         )
+
+@app.post("/token")
+async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+    """Login endpoint to get JWT token"""
+    # For demo purposes, using a simple username/password check
+    if form_data.username == "admin" and form_data.password == "admin":
+        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = create_access_token(
+            data={"sub": form_data.username}, expires_delta=access_token_expires
+        )
+        return {"access_token": access_token, "token_type": "bearer"}
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Incorrect username or password",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
 
 @app.get("/rankings", response_model=List[Billionaire])
 async def get_rankings():
