@@ -31,7 +31,21 @@ def fetch_and_import_data():
         logger.error(f"Failed to connect to database: {e}")
         return
 
+    # Clean existing data
+    try:
+        db.db.query(BillionaireModel).delete()
+        db.db.commit()
+        logger.info("Cleaned existing data")
+    except Exception as e:
+        logger.error(f"Error cleaning existing data: {e}")
+        db.db.rollback()
+        return
+
     count = 0
+    batch_size = 50
+    current_batch = []
+    seen_ids = set()  # Track used IDs to ensure uniqueness
+
     for billionaire_data in data.get("list", []):
         try:
             # Get net worth value and convert to float
@@ -39,10 +53,19 @@ def fetch_and_import_data():
             # Convert to float (value is already in billions)
             net_worth = float(net_worth_str)
 
+            # Generate unique ID
+            base_id = str(billionaire_data.get("rank", ""))
+            unique_id = base_id
+            suffix = 1
+            while unique_id in seen_ids:
+                unique_id = f"{base_id}_{suffix}"
+                suffix += 1
+            seen_ids.add(unique_id)
+
             # Initialize default scores
             # We'll calculate real scores once we have proper data from scrapers
             billionaire_model = BillionaireModel(
-                id=str(billionaire_data.get("rank", "")),  # Using rank as unique ID
+                id=unique_id,  # Using rank as unique ID
                 name=billionaire_data.get("name", ""),
                 net_worth=net_worth,
                 social_score=15.0,  # Default middle scores
@@ -53,19 +76,34 @@ def fetch_and_import_data():
                 overall_score=10.0  # Will be recalculated based on weights
             )
 
-            db.db.merge(billionaire_model)  # Use merge instead of add to handle duplicates
+            current_batch.append(billionaire_model)
             count += 1
-            if count % 100 == 0:
-                logger.info(f"Processed {count} records")
+
+            # Process in batches
+            if len(current_batch) >= batch_size:
+                try:
+                    db.db.bulk_save_objects(current_batch)
+                    db.db.commit()
+                    logger.info(f"Processed {count} records")
+                    current_batch = []
+                except Exception as e:
+                    logger.error(f"Error saving batch: {e}")
+                    db.db.rollback()
+                    current_batch = []
+
         except Exception as e:
             logger.error(f"Error processing billionaire data: {e}")
             continue
 
-    try:
-        db.db.commit()
-        logger.info(f"Successfully imported {count} billionaire records")
-    except Exception as e:
-        logger.error(f"Error committing to database: {e}")
+    # Save any remaining records
+    if current_batch:
+        try:
+            db.db.bulk_save_objects(current_batch)
+            db.db.commit()
+            logger.info(f"Successfully imported {count} billionaire records")
+        except Exception as e:
+            logger.error(f"Error committing final batch: {e}")
+            db.db.rollback()
 
 if __name__ == "__main__":
     try:
