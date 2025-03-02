@@ -5,19 +5,61 @@
 {% block content %}
 <div class="max-w-4xl mx-auto">
     <h1 class="text-3xl font-bold mb-8">Impact Rankings</h1>
-    
+
     <div class="bg-white shadow-lg rounded-lg overflow-hidden">
         <table class="min-w-full">
             <thead class="bg-gray-50">
                 <tr>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rank</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Overall Score</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Social</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Environmental</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Political</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Philanthropy</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cultural</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <div class="group relative inline-block">
+                            Overall Score
+                            <div class="opacity-0 group-hover:opacity-100 transition duration-300 bg-black text-white text-xs rounded-lg py-2 px-3 absolute z-10 bottom-full left-1/2 transform -translate-x-1/2 mb-2 min-w-[200px]">
+                                Weighted average of all impact categories. Score above 15 indicates exceptional positive impact, 8-15 moderate impact, below 8 needs improvement.
+                            </div>
+                        </div>
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <div class="group relative inline-block">
+                            Social
+                            <div class="opacity-0 group-hover:opacity-100 transition duration-300 bg-black text-white text-xs rounded-lg py-2 px-3 absolute z-10 bottom-full left-1/2 transform -translate-x-1/2 mb-2 min-w-[200px]">
+                                Measures worker treatment, tax practices, and corporate governance. High scores (20-30) indicate fair labor practices and ethical business conduct.
+                            </div>
+                        </div>
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <div class="group relative inline-block">
+                            Environmental
+                            <div class="opacity-0 group-hover:opacity-100 transition duration-300 bg-black text-white text-xs rounded-lg py-2 px-3 absolute z-10 bottom-full left-1/2 transform -translate-x-1/2 mb-2 min-w-[200px]">
+                                Based on climate action and sustainability initiatives. High scores (15-20) show strong environmental leadership and innovation.
+                            </div>
+                        </div>
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <div class="group relative inline-block">
+                            Political
+                            <div class="opacity-0 group-hover:opacity-100 transition duration-300 bg-black text-white text-xs rounded-lg py-2 px-3 absolute z-10 bottom-full left-1/2 transform -translate-x-1/2 mb-2 min-w-[200px]">
+                                Evaluates lobbying transparency and campaign contributions. High scores (15-20) indicate ethical political engagement.
+                            </div>
+                        </div>
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <div class="group relative inline-block">
+                            Philanthropy
+                            <div class="opacity-0 group-hover:opacity-100 transition duration-300 bg-black text-white text-xs rounded-lg py-2 px-3 absolute z-10 bottom-full left-1/2 transform -translate-x-1/2 mb-2 min-w-[200px]">
+                                Assesses charitable giving and social impact. High scores (15-20) reflect meaningful contributions to public good.
+                            </div>
+                        </div>
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <div class="group relative inline-block">
+                            Cultural
+                            <div class="opacity-0 group-hover:opacity-100 transition duration-300 bg-black text-white text-xs rounded-lg py-2 px-3 absolute z-10 bottom-full left-1/2 transform -translate-x-1/2 mb-2 min-w-[200px]">
+                                Measures public influence and media representation. High scores (8-10) indicate positive cultural impact.
+                            </div>
+                        </div>
+                    </th>
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
