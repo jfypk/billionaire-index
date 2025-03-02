@@ -9,6 +9,11 @@ class Database:
     def __init__(self):
         self.db: Session = next(get_db())
 
+    def close(self):
+        """Close the database session"""
+        if self.db:
+            self.db.close()
+
     def get_billionaires(self) -> List[Billionaire]:
         billionaires = self.db.query(BillionaireModel).all()
         return [

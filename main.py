@@ -8,6 +8,7 @@ from typing import List
 import os
 import sys
 import logging
+from contextlib import contextmanager
 from models import Billionaire, Vote, Report, User
 from database import Database
 from auth import get_current_active_user, create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
@@ -30,22 +31,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount static files
-app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Initialize templates
 templates = Jinja2Templates(directory="templates")
 
-# Initialize database and scraper manager
-try:
-    logger.info("Initializing database connection...")
+# Create database connection manager for serverless environment
+@contextmanager
+def get_db():
     db = Database()
-    logger.info("Database connection successful")
-    scraper_manager = ScraperManager()
-    logger.info("Scraper manager initialized")
-except Exception as e:
-    logger.error(f"Failed to initialize services: {e}")
-    raise
+    try:
+        yield db
+    finally:
+        db.close()
+
+# Create scraper manager instance per request
+def get_scraper_manager():
+    return ScraperManager()
 
 @app.get("/health")
 async def health_check():
@@ -56,17 +57,18 @@ async def health_check():
 async def root(request: Request):
     """Render the main rankings page"""
     try:
-        logger.info("Fetching billionaires from database")
-        billionaires = db.get_billionaires()
-        logger.info(f"Retrieved {len(billionaires)} billionaire records")
+        with get_db() as db:
+            logger.info("Fetching billionaires from database")
+            billionaires = db.get_billionaires()
+            logger.info(f"Retrieved {len(billionaires)} billionaire records")
 
-        weights = calculate_weights(db)
-        db.update_billionaire_scores(weights)
+            weights = calculate_weights(db)
+            db.update_billionaire_scores(weights)
 
-        return templates.TemplateResponse(
-            "rankings.html",
-            {"request": request, "billionaires": sorted(billionaires, key=lambda x: x.overall_score, reverse=True)}
-        )
+            return templates.TemplateResponse(
+                "rankings.html",
+                {"request": request, "billionaires": sorted(billionaires, key=lambda x: x.overall_score, reverse=True)}
+            )
     except Exception as e:
         logger.error(f"Error rendering rankings page: {str(e)}")
         return templates.TemplateResponse(
@@ -89,7 +91,6 @@ async def vote_page(request: Request):
 @app.post("/token")
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     """Login endpoint to get JWT token"""
-    # For demo purposes, using a simple username/password check
     if form_data.username == "admin" and form_data.password == "admin":
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = create_access_token(
@@ -105,21 +106,23 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
 @app.get("/rankings", response_model=List[Billionaire])
 async def get_rankings():
     """Get ranked list of billionaires"""
-    billionaires = db.get_billionaires()
-    weights = calculate_weights(db)
-    db.update_billionaire_scores(weights)
-    return sorted(billionaires, key=lambda x: x.overall_score, reverse=True)
+    with get_db() as db:
+        billionaires = db.get_billionaires()
+        weights = calculate_weights(db)
+        db.update_billionaire_scores(weights)
+        return sorted(billionaires, key=lambda x: x.overall_score, reverse=True)
 
 @app.get("/billionaire/{billionaire_id}", response_model=Billionaire)
 async def get_billionaire(billionaire_id: str):
     """Get individual billionaire data"""
-    billionaire = db.get_billionaire(billionaire_id)
-    if not billionaire:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Billionaire not found"
-        )
-    return billionaire
+    with get_db() as db:
+        billionaire = db.get_billionaire(billionaire_id)
+        if not billionaire:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Billionaire not found"
+            )
+        return billionaire
 
 @app.post("/vote")
 async def submit_vote(
@@ -140,17 +143,18 @@ async def submit_vote(
             detail="Weight must be between 0 and 1"
         )
 
-    vote = Vote(
-        user_id=current_user.username,
-        category=category,
-        weight=weight
-    )
+    with get_db() as db:
+        vote = Vote(
+            user_id=current_user.username,
+            category=category,
+            weight=weight
+        )
 
-    db.save_vote(vote)
-    weights = calculate_weights(db)
-    db.update_billionaire_scores(weights)
+        db.save_vote(vote)
+        weights = calculate_weights(db)
+        db.update_billionaire_scores(weights)
 
-    return {"message": "Vote recorded successfully"}
+        return {"message": "Vote recorded successfully"}
 
 @app.post("/report")
 async def submit_report(
@@ -160,21 +164,22 @@ async def submit_report(
     current_user: User = Depends(get_current_active_user)
 ):
     """Submit a report about a billionaire"""
-    if not db.get_billionaire(billionaire_id):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Billionaire not found"
+    with get_db() as db:
+        if not db.get_billionaire(billionaire_id):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Billionaire not found"
+            )
+
+        report = Report(
+            user_id=current_user.username,
+            billionaire_id=billionaire_id,
+            evidence=evidence,
+            category=category
         )
 
-    report = Report(
-        user_id=current_user.username,
-        billionaire_id=billionaire_id,
-        evidence=evidence,
-        category=category
-    )
-
-    db.save_report(report)
-    return {"message": "Report submitted successfully"}
+        db.save_report(report)
+        return {"message": "Report submitted successfully"}
 
 @app.post("/update-data/{billionaire_id}")
 async def update_billionaire_data(
@@ -183,18 +188,20 @@ async def update_billionaire_data(
     current_user: User = Depends(get_current_active_user)
 ):
     """Trigger data update for a specific billionaire"""
-    logger.info(f"Received update request for billionaire {billionaire_id} from user {current_user.username}")
+    with get_db() as db:
+        logger.info(f"Received update request for billionaire {billionaire_id} from user {current_user.username}")
 
-    if not db.get_billionaire(billionaire_id):
-        logger.error(f"Billionaire {billionaire_id} not found")
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Billionaire not found"
-        )
+        if not db.get_billionaire(billionaire_id):
+            logger.error(f"Billionaire {billionaire_id} not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Billionaire not found"
+            )
 
-    background_tasks.add_task(scraper_manager.update_billionaire_data, billionaire_id)
-    logger.info(f"Started background update task for billionaire {billionaire_id}")
-    return {"message": "Data update started"}
+        scraper_manager = get_scraper_manager()
+        background_tasks.add_task(scraper_manager.update_billionaire_data, billionaire_id)
+        logger.info(f"Started background update task for billionaire {billionaire_id}")
+        return {"message": "Data update started"}
 
 @app.post("/update-all-data")
 async def update_all_data(
@@ -202,9 +209,11 @@ async def update_all_data(
     current_user: User = Depends(get_current_active_user)
 ):
     """Trigger data update for all billionaires"""
+    scraper_manager = get_scraper_manager()
     background_tasks.add_task(scraper_manager.update_all_billionaires)
     return {"message": "Full data update started"}
 
+# For local development only
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=5000)
